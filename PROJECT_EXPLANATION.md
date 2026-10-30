@@ -48,9 +48,99 @@ In academic and research institutions, students and aspiring data scientists fre
 
 ---
 
-## 4. Detailed Step-by-Step Workflow Explanation
+## 4. Top Navigation Tabs: Modules, Features & What Each Does
 
-The app breaks down deep learning experiments into **six structured milestones**:
+At the very top of the application dashboard, the student navigates through **5 primary functional tabs**. Each tab serves a dedicated purpose and tracks specific quantitative and qualitative metrics:
+
+```
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  🧭 1. Step-by-Step Lab Guide │ 💻 2. Starter Code Generator │ 🛠️ 3. Code & Error Debugger │ 📝 4. Automated Lab Report │ 📚 5. Knowledge Base Rules  │
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Tab 1: 🧭 Step-by-Step Lab Guide
+*The core interactive backbone guiding the student through all 6 experimental phases sequentially.*
+
+- **What It Does**:
+  - Acts as a real-time lab mentor.
+  - Takes inputs for each step, analyzes them, checks for common pitfalls, provides dataset recommendations, and guides metric evaluation.
+  - Features quick-prompt inquiry buttons (e.g. *"Should I scale before splitting?"*, *"Why is loss NaN?"*).
+- **Metrics Tracked & Generated in this Tab**:
+  1. **Dataset Benchmark Accuracy Range**: Indicates expected accuracy (e.g., *Baseline CNN: 72–76% vs ResNet-18: 91–94%*).
+  2. **Class Distribution & Imbalance Ratio**: $\text{Ratio} = \frac{N_{\text{majority}}}{N_{\text{minority}}}$. Detects severe skew requiring class weighting.
+  3. **Missing Value Ratio**: Percentage of null values per column; dictates whether to impute or drop.
+  4. **Data Split Ratio**: 80% Train, 10% Validation, 10% Test allocation.
+  5. **Validation Loss & Accuracy Progression**: Step-by-step recording of training and generalization dynamics.
+
+---
+
+### Tab 2: 💻 Starter Code Generator
+*The automated synthesis engine that produces ready-to-run PyTorch scripts.*
+
+- **What It Does**:
+  - Automatically synthesizes a clean, complete, end-to-end Python script based on the exact inputs specified in Tab 1 (Title, Aim, Chosen Dataset, Model Backbone, Task Type).
+  - Automatically structures data loaders, model class (`nn.Module`), loss function, optimizer with weight decay, and the complete training/evaluation loop.
+  - Includes a one-click **"📥 Download Python Script (`experiment.py`)"** button.
+- **Metrics & Integrity Checks Enforced in the Code**:
+  1. **Logits vs Softmax Verification**: Strictly ensures raw unnormalized logits are passed to `nn.CrossEntropyLoss` (preventing double-softmax gradient decay).
+  2. **Gradient Norm Bound**: Enforces `torch.nn.utils.clip_grad_norm_(max_norm=1.0)` to safeguard against exploding gradients.
+  3. **Device Placement Consistency**: Ensures model and tensors are moved cleanly to `cuda` if available, falling back gracefully to `cpu`.
+  4. **Phase Switching**: Enforces `model.train()` during backpropagation and `model.eval()` with `torch.no_grad()` during validation.
+
+---
+
+### Tab 3: 🛠️ Code & Error Debugger (AI for Solving Any Problem)
+*The dedicated deep learning error diagnostic engine that fixes broken student code and terminal crashes.*
+
+- **What It Does**:
+  - Students paste their buggy PyTorch/Python code and error traceback (e.g., terminal crash logs, NaN loss, CUDA out-of-memory).
+  - The assistant uses domain-specific RAG rules combined with Gemini 3.8 Flash to diagnose the problem.
+  - Outputs a 4-part solution:
+    1. 🔍 **Root Cause Analysis**: Plain English explanation of the failure.
+    2. ⚠️ **Deep Learning Concept / Pitfall**: What conceptual mistake caused it.
+    3. 🛠️ **Corrected & Verified Code**: Full drop-in replacement code.
+    4. 💡 **Prevention Tip**: How to avoid the issue in the future.
+- **Diagnostic Metrics & Error Signatures Handled**:
+  1. **Tensor Shape & Dimension Mismatches**: Computes matrix product compatibility: $(B, C_{\text{in}}, H, W) \rightarrow (B, C_{\text{out}}, H', W')$ to fix Linear and Conv2d flatten errors.
+  2. **Numerical Instability / Exploding Gradients**: Flags when gradients $\|\nabla \mathcal{L}\| \to \infty$ and loss turns to `NaN`.
+  3. **CUDA Out of Memory (OOM)**: Recommends batch size halving, gradient accumulation steps, or `torch.cuda.empty_cache()`.
+  4. **Device Mismatches**: Detects `RuntimeError: Expected all tensors to be on the same device` when tensors and models reside on different hardware.
+  5. **Gradient Accumulation Bugs**: Identifies missing `optimizer.zero_grad()`.
+
+---
+
+### Tab 4: 📝 Automated Lab Report Generator
+*The academic publishing engine that writes the complete laboratory submission.*
+
+- **What It Does**:
+  - Consolidates all 6 experimental steps, datasets, hyperparameters, results, and student observations into an academic IEEE/university standard report.
+  - Automatically formulates mathematical equations in LaTeX (e.g., Cross-Entropy, Softmax, SGD with Momentum, AdamW).
+  - Constructs clean markdown tables for hyperparameters and experimental configurations.
+  - Generates analytical error diagnoses and future research directions.
+  - Includes a one-click **"📥 Download Report as Markdown (.md)"** button.
+- **Report Quality & Academic Metrics**:
+  1. **Structural Completeness Score**: Verifies all 9 mandatory sections: Aim, Theory, Dataset, Preprocessing, Architecture, Hyperparameters, Results, Error Analysis, and Conclusion.
+  2. **Mathematical Rigor**: Embeds formal mathematical definitions ($\mathcal{L}_{\text{CE}}$, $\text{F1}$, Backprop equations).
+  3. **Experimental Reproducibility**: Formats exact seeds, learning rates, batch sizes, and weight decays into a reproducible table.
+
+---
+
+### Tab 5: 📚 Knowledge Base Rules Explorer
+*The interactive domain rulebook explaining best practices and anti-patterns.*
+
+- **What It Does**:
+  - Allows students to explore the underlying RAG rules engine.
+  - Includes search capability for topics like "softmax", "leakage", "nan loss", "scaling", and "imbalance".
+  - Displays each rule with its **Common Pitfall**, **Recommended Practice**, and **Verified PyTorch Code Snippet**.
+- **Metrics & Rule Coverage**:
+  - 12+ verified domain playbooks covering the full ML/DL lifecycle.
+  - Category-based scoring: `dataset_inspection`, `preprocessing`, `model_selection`, `training_debugging`, `evaluation_diagnostics`, and `lab_report_guidance`.
+
+---
+
+## 5. Detailed Step-by-Step Workflow (Within Tab 1)
 
 ```mermaid
 flowchart TD
@@ -75,7 +165,7 @@ flowchart TD
     S6 <--> SupportEngines
 ```
 
-### 4.1 Step 1: Dataset & Problem Setup
+### 5.1 Step 1: Dataset & Problem Setup
 - **What the Student Does**: Inputs the Experiment Title, Aim/Objective, Modality (Vision, Tabular, Text), and Task Type.
 - **What the Assistant Does**:
   1. Activates `suggest_datasets()`: Analyzes the semantic meaning of the aim and suggests 3–4 candidate datasets (e.g., CIFAR-10, Fashion-MNIST, Breast Cancer Wisconsin, California Housing).
@@ -83,20 +173,20 @@ flowchart TD
   3. Provides a **"Use this Dataset"** button that auto-populates the experiment's metadata and recommended architecture with one click.
   4. Warns about early data leakage hazards (e.g. accidentally keeping unique ID columns in the feature matrix).
 
-### 4.2 Step 2: Preprocessing & Leakage Checker
+### 5.2 Step 2: Preprocessing & Leakage Checker
 - **What the Student Does**: Defines their data transformation pipeline, missing value imputation strategy, and train/val/test split ratios. (Optionally uploads a CSV for instant preview).
 - **What the Assistant Does**:
   1. Enforces **Feature Scaling Rules**: Verifies that `StandardScaler` / `MinMaxScaler` is fit *only* on the training partition and applied to validation/test partitions.
   2. Enforces **Augmentation Safety**: Ensures that vision augmentations (RandomCrop, HorizontalFlip, ColorJitter) are applied exclusively to training data and never to validation/test data.
 
-### 4.3 Step 3: Model Architecture & Loss Selection
+### 5.3 Step 3: Model Architecture & Loss Selection
 - **What the Student Does**: Selects their model architecture (e.g., ResNet-18, Custom CNN, MLP) and loss function.
 - **What the Assistant Does**:
   1. **Architecture Sizing**: Evaluates whether the chosen model matches the dataset scale (e.g., discourages training a Vision Transformer from scratch on a small dataset with <50k images).
   2. **Softmax / CrossEntropy Validation**: Warns against the classic PyTorch bug of putting `nn.Softmax` in the model forward method while using `nn.CrossEntropyLoss`.
   3. Prepares the architecture parameter table for report generation.
 
-### 4.4 Step 4: Training & Hyperparameter Tuning
+### 5.4 Step 4: Training & Hyperparameter Tuning
 - **What the Student Does**: Records batch size, learning rate, optimizer (e.g., AdamW, SGD), epoch count, and learning rate scheduler.
 - **What the Assistant Does**:
   1. Advises on safe learning rates (e.g., `1e-3` or `3e-4` for AdamW).
@@ -104,14 +194,14 @@ flowchart TD
   3. Provides code patterns for early stopping and `ReduceLROnPlateau` or `CosineAnnealingLR`.
   4. Reminds the student to always call `optimizer.zero_grad()` before `loss.backward()`.
 
-### 4.5 Step 5: Evaluation & Error Analysis
+### 5.5 Step 5: Evaluation & Error Analysis
 - **What the Student Does**: Evaluates the trained model on test data and logs results and observations.
 - **What the Assistant Does**:
   1. Automatically runs `recommend_evaluation_metrics()`: Generates the mandatory primary and secondary diagnostic metrics tailored to the problem.
   2. Provides turnkey `scikit-learn` code to compute accuracy, precision, recall, macro-F1, and normalized confusion matrices.
   3. Guides **Loss Curve Diagnosis**: Teaches the student how to differentiate between **overfitting** (training loss drops while validation loss climbs) and **underfitting** (both losses remain stubbornly high).
 
-### 4.6 Step 6: Automated Lab Report Generator
+### 5.6 Step 6: Automated Lab Report Generator
 - **What the Student Does**: Reviews their experiment records and clicks **"Generate Full Lab Report"**.
 - **What the Assistant Does**:
   1. Consolidates all 6 steps into an academic IEEE-style laboratory report.
@@ -122,11 +212,11 @@ flowchart TD
 
 ---
 
-## 5. Comprehensive Guide to Evaluation Metrics
+## 6. Comprehensive Guide to Evaluation Metrics
 
 The app automatically categorizes and recommends evaluation metrics based on task characteristics:
 
-### 5.1 Primary Metrics
+### 6.1 Primary Metrics
 
 | Metric | Mathematical Definition | When & Why to Use It | How to Interpret in Lab |
 |---|---|---|---|
@@ -134,7 +224,7 @@ The app automatically categorizes and recommends evaluation metrics based on tas
 | **Validation Loss (Cross-Entropy / MSE)** | $\mathcal{L}_{CE} = -\sum_{i=1}^C y_i \log(\hat{y}_i)$ | Primary objective function monitored during training and early stopping. | Lower is better. A rising validation loss while training loss decreases is the signature of overfitting. |
 | **Macro-F1 Score** | $\text{Macro-F1} = \frac{1}{C}\sum_{c=1}^C F1_c$ | Essential for multi-class and imbalanced classification. | Calculates the unweighted mean of F1 scores across all classes. Penalizes models that fail on rare minority classes. |
 
-### 5.2 Secondary & Diagnostic Metrics
+### 6.2 Secondary & Diagnostic Metrics
 
 | Metric | Mathematical Definition | When & Why to Use It | How to Interpret in Lab |
 |---|---|---|---|
@@ -145,7 +235,7 @@ The app automatically categorizes and recommends evaluation metrics based on tas
 | **ROC-AUC** | Area under the Receiver Operating Characteristic curve. | Ranking quality and threshold-independent performance. | $0.5 = \text{random guessing}$, $1.0 = \text{perfect ranking}$. Insensitive to class prevalence. |
 | **PR-AUC (Average Precision)** | Area under the Precision-Recall curve. | Highly skewed, sparse positive datasets (e.g. rare anomaly detection). | Much more informative than ROC-AUC when positive cases make up $<5\%$ of samples. |
 
-### 5.3 Training Dynamics Metrics
+### 6.3 Training Dynamics Metrics
 
 | Phenomenon | Observable Metric Pattern | Root Cause | Solution Recommended by Assistant |
 |---|---|---|---|
@@ -153,26 +243,6 @@ The app automatically categorizes and recommends evaluation metrics based on tas
 | **Underfitting** | Both Train Loss and Val Loss remain high. | Model capacity is too low or learning rate is too small. | Increase model depth/width, tune learning rate, remove excessive regularization. |
 | **Exploding Gradients** | Loss becomes `NaN` or inf suddenly. | Numerical instability, unbounded gradient steps. | Apply `torch.nn.utils.clip_grad_norm_`, lower learning rate, use AdamW. |
 | **Class Collapse** | High Accuracy but near-zero Macro-F1. | Model predicts majority class only. | Use class-weighted CrossEntropyLoss (`weight=class_weights`) or Focal Loss. |
-
----
-
-## 6. Real-Time Starter Code Generator & Error Debugger
-
-### 6.1 Starter Code Generator
-The assistant doesn't just explain concepts—it writes the entire foundational script:
-- Automatic dataset loaders (`torchvision.datasets` or `DataLoader`).
-- Transformation pipelines with distinct train vs validation transforms.
-- Clean `nn.Module` definition with parameterizable layers and no redundant Softmax.
-- Device placement (`cuda` vs `cpu`).
-- Complete training loop with step loss logging, gradient clipping, optimizer stepping, and validation accuracy evaluation.
-- Ready to run directly via terminal or download as `experiment.py`.
-
-### 6.2 Code & Error Debugger
-When students encounter runtime crashes, they paste their snippet and traceback into the debugger tab:
-- **Root Cause Identification**: Diagnoses tensor dimension mismatches (e.g., `Expected 4-dimensional input for 4-dimensional weight [64, 3, 3, 3], but got 3-dimensional input of size [3, 32, 32]`), missing `.to(device)` mismatches, missing zero_grad bugs, or gradient dimension problems.
-- **Conceptual Explanation**: Explains why the bug happened in beginner-friendly terms.
-- **Drop-In Replacement Code**: Gives verified, fully commented replacement code.
-- **Prevention Best Practices**: Provides preventive advice to reinforce learning.
 
 ---
 
