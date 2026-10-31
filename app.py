@@ -149,7 +149,7 @@ with st.sidebar:
         st.session_state.gemini_api_key = clean_key
         os.environ["GEMINI_API_KEY"] = clean_key
         rag_assistant = LabAssistantRAG(api_key=clean_key)
-        if rag_assistant.is_connected():
+        if len(clean_key) >= 15:
             st.success("🟢 AI Connected (Gemini Active)", icon="✅")
         else:
             st.info("🟡 Key entered. Ready for requests.", icon="🔑")
@@ -587,8 +587,10 @@ with tab4:
     if generate_btn:
         with st.spinner("Synthesizing formal academic experiment report..."):
             active_key = st.session_state.get("gemini_api_key", "").strip() or api_key_input.strip()
-            if active_key:
+            if active_key and hasattr(rag_assistant, "set_api_key"):
                 rag_assistant.set_api_key(active_key)
+            elif active_key:
+                rag_assistant.api_key = active_key
             report = rag_assistant.generate_experiment_report(
                 st.session_state.experiment_data
             )
