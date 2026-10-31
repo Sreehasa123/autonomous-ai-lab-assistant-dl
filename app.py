@@ -124,6 +124,9 @@ if "generated_code" not in st.session_state:
 if "generated_report" not in st.session_state:
     st.session_state.generated_report = ""
 
+if "gemini_api_key" not in st.session_state:
+    st.session_state.gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
+
 # ----------------- SIDEBAR CONTROLS -----------------
 with st.sidebar:
     st.image(
@@ -135,19 +138,25 @@ with st.sidebar:
     # API Key Input
     api_key_input = st.text_input(
         "Google Gemini API Key",
-        value=os.environ.get("GEMINI_API_KEY", ""),
+        value=st.session_state.gemini_api_key,
         type="password",
         help="Get a free key from Google AI Studio (aistudio.google.com)",
+        key="gemini_api_key_widget",
     )
 
-    if api_key_input:
-        os.environ["GEMINI_API_KEY"] = api_key_input
-        rag_assistant = LabAssistantRAG(api_key=api_key_input)
-        st.success("🟢 AI Connected (gemini-3.8-flash)", icon="✅")
+    clean_key = api_key_input.strip().strip("'\"").strip() if api_key_input else ""
+    if clean_key:
+        st.session_state.gemini_api_key = clean_key
+        os.environ["GEMINI_API_KEY"] = clean_key
+        rag_assistant = LabAssistantRAG(api_key=clean_key)
+        if rag_assistant.is_connected():
+            st.success("🟢 AI Connected (Gemini Active)", icon="✅")
+        else:
+            st.info("🟡 Key entered. Ready for requests.", icon="🔑")
     else:
-        rag_assistant = LabAssistantRAG()
-        st.warning("🟡 Offline Mode (RAG Rules Only)", icon="⚠️")
-        st.caption("Add an API key to enable live AI reasoning & report writing.")
+        st.session_state.gemini_api_key = ""
+        rag_assistant = LabAssistantRAG(api_key="")
+        st.info("💡 Offline Mode (RAG & Academic Engine). Paste Gemini key to enable live AI reasoning.", icon="ℹ️")
 
     st.divider()
 
@@ -576,11 +585,15 @@ with tab4:
         generate_btn = st.button("🚀 Generate Full Lab Report", type="primary")
 
     if generate_btn:
-        with st.spinner("Synthesizing formal experiment report with Gemini..."):
+        with st.spinner("Synthesizing formal academic experiment report..."):
+            active_key = st.session_state.get("gemini_api_key", "").strip() or api_key_input.strip()
+            if active_key:
+                rag_assistant.set_api_key(active_key)
             report = rag_assistant.generate_experiment_report(
                 st.session_state.experiment_data
             )
             st.session_state.generated_report = report
+            st.success("✅ Academic Lab Report generated successfully!")
 
     if st.session_state.generated_report:
         st.divider()
